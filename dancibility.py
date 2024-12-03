@@ -1,54 +1,132 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyClientCredentials
 import csv
 
-# Set up authentication credentials and scopes
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="ff4c30e99e6c48bb9deaf12fc44ad9ea",
-                                               client_secret="0817ba394b8d48faaf1fb7fb710d8e37",
-                                               redirect_uri="http://localhost:3000",
-                                               scope="user-top-read user-library-read"))
+# Spotify API credentials (replace with your own)
+CLIENT_ID = 'ff4c30e99e6c48bb9deaf12fc44ad9ea'
+CLIENT_SECRET = '0817ba394b8d48faaf1fb7fb710d8e37'
 
-def get_top_artists(limit=100):
-    all_artists = []
-    for offset in range(0, limit, 50):
-        results = sp.current_user_top_artists(limit=50, offset=offset, time_range='long_term')
-        for item in results['items']:
-            all_artists.append(item['id'])  # Collecting only artist IDs
-    return all_artists
+# Authenticate with Spotify API
+try:
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET))
+    print("Authenticated successfully with Spotify API.")
+except Exception as e:
+    print(f"Authentication failed: {e}")
+    exit()
 
-def get_artist_top_tracks(artist_id):
-    results = sp.artist_top_tracks(artist_id)
-    return [track['id'] for track in results['tracks']]
+def fetch_danceability_for_top_artists(output_file='danceability_scores.csv'):
+    """
+    Fetches danceability scores for tracks of the top 50 artists and outputs the data to a CSV file.
+    """
+    try:
+        # Get the top 50 artists (adjust criteria to your needs)
+        top_artists = sp.search(q='genre:pop', type='artist', limit=50)
+        artists = top_artists['artists']['items']
 
-def get_tracks_danceability(track_ids):
-    danceabilities = []
-    for i in range(0, len(track_ids), 50):  # Max 50 IDs per request
-        audio_features = sp.audio_features(track_ids[i:i + 50])
-        for features in audio_features:
-            if features:
-                danceabilities.append({
-                    'track_id': features['id'],
-                    'track_name': features['track_href'].split('/')[-1],  # Get track name from URL
-                    'danceability': features['danceability']
-                })
-    return danceabilities
+        if not artists:
+            print("No artists found. Please verify the query.")
+            return
 
-def save_danceability_to_csv(danceabilities, filename="danceability.csv"):
-    fieldnames = ['track_id', 'track_name', 'danceability']
-    with open(filename, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(danceabilities)
-    print(f"Danceability data saved to {filename}")
+        # Collect all artist IDs
+        artist_ids = [artist['id'] for artist in artists]
 
-def main():
-    top_artists = get_top_artists(limit=100)
-    all_track_ids = []
-    for artist_id in top_artists:
-        all_track_ids.extend(get_artist_top_tracks(artist_id))
+        # Fetch tracks and their danceability
+        data = []
+        for artist_id in artist_ids:
+            # Get artist's top tracks
+            top_tracks = sp.artist_top_tracks(artist_id)
+            for track in top_tracks['tracks']:
+                track_name = track['name']
+                track_id = track['id']
 
-    danceabilities = get_tracks_danceability(all_track_ids)
-    save_danceability_to_csv(danceabilities, filename="danceability.csv")
+                try:
+                    # Get audio features (including danceability)
+                    audio_features = sp.audio_features([track_id])
+                    if audio_features and audio_features[0]:  # Ensure valid response
+                        danceability = audio_features[0]['danceability']
+                        data.append([track_name, artist_id, track_id, danceability])
+                except spotipy.exceptions.SpotifyException as e:
+                    print(f"Error fetching audio features for track {track_name} ({track_id}): {e}")
+                except Exception as e:
+                    print(f"Unexpected error fetching audio features for track {track_name} ({track_id}): {e}")
 
-if __name__ == "__main__":
-    main()
+        # Write data to CSV
+        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Track Name', 'Artist ID', 'Track ID', 'Danceability'])
+            writer.writerows(data)
+
+        print(f"Danceability scores saved to {output_file}")
+
+    except spotipy.exceptions.SpotifyException as e:
+        print(f"Spotify API error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+
+
+# Run the script
+if __name__ == '__main__':
+    fetch_danceability_for_top_artists()
+
+# Spotify API credentials (replace with your own)
+CLIENT_ID = 'ff4c30e99e6c48bb9deaf12fc44ad9ea'
+CLIENT_SECRET = '0817ba394b8d48faaf1fb7fb710d8e37'
+
+# Authenticate with Spotify API
+try:
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET))
+    print("Authenticated successfully with Spotify API.")
+except Exception as e:
+    print(f"Authentication failed: {e}")
+    exit()
+def fetch_danceability_for_top_artists(output_file='danceability_scores.csv'):
+    """
+    Fetches danceability scores for tracks of the top 100 artists and outputs the data to a CSV file.
+    """
+    try:
+        # Get the top 50 artists (adjust criteria to your needs)
+        top_artists = sp.search(q='genre:pop', type='artist', limit=50)
+        artists = top_artists['artists']['items']
+
+        if not artists:
+            print("No artists found. Please verify the query.")
+            return
+
+        # Collect all artist IDs
+        artist_ids = [artist['id'] for artist in artists]
+
+        # Fetch tracks and their danceability
+        data = []
+        for artist_id in artist_ids:
+            # Get artist's top tracks
+            top_tracks = sp.artist_top_tracks(artist_id)
+            for track in top_tracks['tracks']:
+                track_name = track['name']
+                track_id = track['id']
+
+                try:
+                    # Get audio features (including danceability)
+                    audio_features = sp.audio_features([track_id])
+                    if audio_features and audio_features[0]:  # Ensure valid response
+                        danceability = audio_features[0]['danceability']
+                        data.append([track_name, artist_id, track_id, danceability])
+                except spotipy.exceptions.SpotifyException as e:
+                    print(f"Error fetching audio features for track {track_name} ({track_id}): {e}")
+
+        # Write data to CSV
+        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Track Name', 'Artist ID', 'Track ID', 'Danceability'])
+            writer.writerows(data)
+
+        print(f"Danceability scores saved to {output_file}")
+
+    except spotipy.exceptions.SpotifyException as e:
+        print(f"Spotify API error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+# Run the script
+if __name__ == '__main__':
+    fetch_danceability_for_top_artists()
