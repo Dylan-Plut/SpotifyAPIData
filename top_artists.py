@@ -3,18 +3,18 @@ from spotipy.oauth2 import SpotifyOAuth
 import csv
 
 # Set up authentication credentials and scopes
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="fb72b900efce4528865229d9d5211a16",
-                                               client_secret="44eb1cb44c2b44349f70f6dc3c623de7",
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="######",
+                                               client_secret="######",
                                                redirect_uri="http://localhost:3000",
                                                scope="user-top-read"))
 
 
 def get_top_artists(limit=100):
-    # Retrieve top artists, but handle pagination since the API limits to 50 per request
+    # Retrieve top artists
     all_artists = []
     for offset in range(0, limit, 50):  # Spotify allows max 50 items per request
         results = sp.current_user_top_artists(limit=50, offset=offset,
-                                              time_range='long_term')  # time_range: short_term, medium_term, long_term
+                                              time_range='long_term')
 
         # Append the current batch of results
         for item in results['items']:
