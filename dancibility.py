@@ -3,7 +3,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import csv
 
 
-###PLEASE SEE THE README FILE FOR AN EXPLANATION OF THIS CODE.
+###PLEASE SEE THE README FILE FOR AN EXPLANATION OF THIS CODE. #####
 # Spotify API credentials (replace with your own)
 CLIENT_ID = 'ff4c30e99e6c48bb9deaf12fc44ad9ea'
 CLIENT_SECRET = '0817ba394b8d48faaf1fb7fb710d8e37'
