@@ -14,7 +14,7 @@ def fetch_top_songs_for_artists():
     client_credentials_manager = SpotifyClientCredentials()
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     try:
-        artists_df = pd.read_csv('top_artists.csv')
+        artists_df = pd.read_csv('CSV_Files/top_artists.csv')
         top_songs_data = []
         for _, artist in artists_df.iterrows():
             artist_name = artist['name']

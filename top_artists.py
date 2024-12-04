@@ -45,7 +45,7 @@ def save_to_csv(artists, filename="top_artists.csv"):
 
 def main():
     top_artists = get_top_artists(limit=100)
-    save_to_csv(top_artists, filename="top_artists.csv")
+    save_to_csv(top_artists, filename="CSV_Files/top_artists.csv")
 
 
 if __name__ == "__main__":
