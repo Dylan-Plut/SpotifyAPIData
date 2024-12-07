@@ -8,7 +8,7 @@ import csv
 CLIENT_ID = '######'
 CLIENT_SECRET = '#######'
 
-# Authenticate with Spotify API
+# Authenticate with API
 try:
     sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET))
     print("Authenticated successfully with Spotify API.")
@@ -21,7 +21,7 @@ def fetch_danceability_for_top_artists(output_file='danceability_scores.csv'):
     Fetches danceability scores for tracks of the top 50 artists and outputs the data to a CSV file.
     """
     try:
-        # Get the top 50 artists
+        # Top 50 artists
         top_artists = sp.search(q='genre:pop', type='artist', limit=50)
         artists = top_artists['artists']['items']
 
@@ -32,7 +32,7 @@ def fetch_danceability_for_top_artists(output_file='danceability_scores.csv'):
         # Collect artist IDs
         artist_ids = [artist['id'] for artist in artists]
 
-        # Fetch tracks danceability
+        # Danceability
         data = []
         for artist_id in artist_ids:
             top_tracks = sp.artist_top_tracks(artist_id)
@@ -64,8 +64,5 @@ def fetch_danceability_for_top_artists(output_file='danceability_scores.csv'):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-
-
-# Run the script
 if __name__ == '__main__':
     fetch_danceability_for_top_artists()

@@ -2,12 +2,11 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import csv
 
-# Set up authentication credentials and scopes
+# Authentication (replace ### with your own creds)
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="######",
                                                client_secret="######",
                                                redirect_uri="http://localhost:3000",
                                                scope="user-top-read"))
-
 
 def get_top_artists(limit=100):
     # Retrieve top artists
